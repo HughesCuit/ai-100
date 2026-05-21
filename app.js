@@ -595,11 +595,11 @@ const groupLabels = {
 };
 
 const max = {
-  memory: Math.max(...devices.map((item) => item.memory)),
-  bandwidth: Math.max(...devices.map((item) => item.bandwidth)),
-  ai: Math.max(...devices.map((item) => item.ai)),
-  model: Math.max(...devices.map((item) => item.denseModelMaxExactB)),
-  speed: Math.max(...devices.map((item) => item.speedScore)),
+  memory: 256,
+  bandwidth: 4000,
+  ai: 4000,
+  model: 405,
+  speed: 200,
   value: 100,
 };
 
@@ -702,7 +702,8 @@ function priceToSlider(value) {
 }
 
 function width(value, key) {
-  return `${Math.max(4, Math.round((value / max[key]) * 100))}%`;
+  const capped = Math.min(value, max[key]);
+  return `${Math.max(4, Math.round((capped / max[key]) * 100))}%`;
 }
 
 function filteredDevices() {
