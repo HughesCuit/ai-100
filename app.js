@@ -786,15 +786,19 @@ function renderChart(target, key, formatter, className = "") {
   const rows = [...devices]
     .sort((a, b) => b[key] - a[key])
     .slice(0, 10);
+  const chartMax = rows[0]?.[key] || 1;
 
   document.querySelector(target).innerHTML = rows
-    .map((item) => `
+    .map((item) => {
+      const barWidth = `${Math.max(4, Math.round((item[key] / chartMax) * 100))}%`;
+      return `
       <div class="bar-row">
         <strong>${item.name}</strong>
-        <span class="bar-track"><span class="bar-fill ${className}" style="width:${width(item[key], key)}"></span></span>
+        <span class="bar-track"><span class="bar-fill ${className}" style="width:${barWidth}"></span></span>
         <span>${formatter(item[key])}</span>
       </div>
-    `)
+    `;
+    })
     .join("");
 }
 
