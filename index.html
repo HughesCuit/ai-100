@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>消费级 AI 设备性能天梯图</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <p class="eyebrow">Local AI Hardware Ladder</p>
+          <h1>消费级 AI 设备性能天梯图</h1>
+        </div>
+      </div>
+      <div class="meta">
+        <span>更新：2026-05-21</span>
+        <span>口径：本地 LLM / 生成式 AI</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="overview">
+        <div class="score-panel">
+          <div class="score-copy">
+            <p class="section-kicker">综合视角</p>
+            <h2>先看能不能装下模型，再看跑得有多快。</h2>
+            <p>
+              容量决定模型上限，带宽决定实际吞吐，生态决定折腾成本。
+              这张榜把 Mac、RTX 50 系、DGX Spark、RTX PRO、H/A/B 系列和若干可买替代设备放在同一张采购视图里。
+            </p>
+          </div>
+          <div class="hero-visual" aria-label="容量、带宽、算力三维雷达式概览">
+            <div class="axis axis-memory"><span>显存/内存</span></div>
+            <div class="axis axis-bandwidth"><span>带宽</span></div>
+            <div class="axis axis-ai"><span>AI 算力</span></div>
+            <div class="chip-orbit">
+              <i class="node n1"></i>
+              <i class="node n2"></i>
+              <i class="node n3"></i>
+              <i class="node n4"></i>
+              <i class="node n5"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-picks">
+          <article>
+            <span class="pick-label">速度优先</span>
+            <strong>RTX 5090</strong>
+            <p>消费级 CUDA 首选，32GB GDDR7 + 1,792GB/s。</p>
+          </article>
+          <article>
+            <span class="pick-label">容量优先</span>
+            <strong>Mac Studio M3 Ultra</strong>
+            <p>统一内存上限高，适合装大模型和低噪音桌面环境。</p>
+          </article>
+          <article>
+            <span class="pick-label">工作站顶配</span>
+            <strong>RTX PRO 6000 Blackwell</strong>
+            <p>96GB ECC 显存，个人/工作室可买设备里的狠角色。</p>
+          </article>
+          <article>
+            <span class="pick-label">容量盒子</span>
+            <strong>DGX Spark</strong>
+            <p>128GB 统一内存，带宽偏保守，适合能装优先。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="controls-band" aria-label="筛选和排序">
+        <div class="controls">
+          <label class="search">
+            <span>搜索</span>
+            <input id="searchInput" type="search" placeholder="例如 RTX 5090、Mac、H200">
+          </label>
+          <label>
+            <span>设备层级</span>
+            <select id="tierFilter">
+              <option value="all">全部</option>
+              <option value="consumer">消费/桌面</option>
+              <option value="workstation">工作站</option>
+              <option value="enterprise">企业参考</option>
+            </select>
+          </label>
+          <label>
+            <span>生态</span>
+            <select id="platformFilter">
+              <option value="all">全部</option>
+              <option value="CUDA">CUDA</option>
+              <option value="Metal">Metal</option>
+              <option value="ROCm">ROCm</option>
+              <option value="oneAPI">oneAPI</option>
+            </select>
+          </label>
+          <label>
+            <span>排序</span>
+            <select id="sortSelect">
+              <option value="score">综合分</option>
+              <option value="memory">容量</option>
+              <option value="bandwidth">带宽</option>
+              <option value="ai">AI 算力</option>
+              <option value="value">购买意义</option>
+              <option value="priceMinAsc">价格从低到高</option>
+              <option value="modelMaxB">模型参数量</option>
+              <option value="speedScore">典型速度</option>
+            </select>
+          </label>
+          <button class="reset-btn" id="resetFilters" type="button" aria-label="重置筛选">重置</button>
+        </div>
+        <div class="model-filter" aria-label="模型能力筛选">
+          <label>
+            <span>总参数量下限</span>
+            <input id="modelFilter" type="number" min="0" step="1" inputmode="numeric" placeholder="例如 70">
+          </label>
+          <label>
+            <span>模型架构</span>
+            <select id="archFilter">
+              <option value="dense">Dense</option>
+              <option value="moe">MoE</option>
+            </select>
+          </label>
+          <label>
+            <span>MoE 激活参数</span>
+            <input id="activeFilter" type="number" min="0" step="1" inputmode="numeric" placeholder="自动">
+          </label>
+          <label>
+            <span>典型速度</span>
+            <select id="speedFilter">
+              <option value="0">全部</option>
+              <option value="5">至少 5 tok/s</option>
+              <option value="10">至少 10 tok/s</option>
+              <option value="20">至少 20 tok/s</option>
+              <option value="40">至少 40 tok/s</option>
+              <option value="80">至少 80 tok/s</option>
+            </select>
+          </label>
+          <p>Dense 按总参数量估算；MoE 按总参数量装载、激活参数量算速度，更适合大内存低带宽设备做容量筛选。</p>
+        </div>
+        <div class="price-filter" aria-label="价格区间筛选">
+          <div class="price-filter-head">
+            <span>国内参考价区间</span>
+            <strong id="priceRangeText"></strong>
+          </div>
+          <div class="range-wrap">
+            <input id="priceMinRange" type="range" min="0" max="1000" value="0" aria-label="最低参考价">
+            <input id="priceMaxRange" type="range" min="0" max="1000" value="1000" aria-label="最高参考价">
+          </div>
+          <div class="price-scale">
+            <span style="left: 0%">￥2千</span>
+            <span style="left: 16.8%">￥1万</span>
+            <span style="left: 40.8%">￥10万</span>
+            <span style="left: 64.8%">￥100万</span>
+            <span style="left: 100%">￥3000万</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="ladder-section">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Ladder</p>
+            <h2>天梯榜</h2>
+          </div>
+          <p id="resultCount" class="count"></p>
+        </div>
+        <div id="ladder" class="ladder" aria-live="polite"></div>
+      </section>
+
+      <section class="compare-grid">
+        <div class="compare-block">
+          <div class="section-head compact">
+            <div>
+              <p class="section-kicker">Memory</p>
+              <h2>容量上限</h2>
+            </div>
+          </div>
+          <div id="memoryChart" class="bar-chart"></div>
+        </div>
+        <div class="compare-block">
+          <div class="section-head compact">
+            <div>
+              <p class="section-kicker">Bandwidth</p>
+              <h2>带宽排行</h2>
+            </div>
+          </div>
+          <div id="bandwidthChart" class="bar-chart"></div>
+        </div>
+      </section>
+
+      <section class="buying-notes">
+        <div>
+          <p class="section-kicker">Decision Notes</p>
+          <h2>怎么读这张图</h2>
+        </div>
+        <div class="notes-grid">
+          <article>
+            <strong>显存/统一内存</strong>
+            <p>决定模型能不能完整放进设备。70B Q4 通常需要 45-55GB，120B Q4 常见会来到 80-100GB。</p>
+          </article>
+          <article>
+            <strong>带宽</strong>
+            <p>对 LLM 推理非常关键。HBM 和高端 GDDR7 的体验会明显强于低带宽统一内存。</p>
+          </article>
+          <article>
+            <strong>AI 算力</strong>
+            <p>不同厂商口径不完全一致。NVIDIA 的 AI TOPS 更适合横向比较同代 NVIDIA 设备。</p>
+          </article>
+          <article>
+            <strong>生态</strong>
+            <p>CUDA 兼容性最好；Metal 安静省电且部署简单；ROCm/oneAPI 可用，但具体模型和工具链要提前核对。</p>
+          </article>
+          <article>
+            <strong>价格</strong>
+            <p>价格为国内参考区间，消费卡按零售/整机常见价，Mac 按国行配置价，企业卡按渠道或服务器方案估算。</p>
+          </article>
+          <article>
+            <strong>模型能力</strong>
+            <p>Dense 按总参数量估算；MoE 同时看总参数量和激活参数量。TPS 是 Q4 单用户交互式推理估算。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="sources">
+        <div>
+          <p class="section-kicker">Sources</p>
+          <h2>公开规格来源</h2>
+        </div>
+        <div class="source-links">
+          <a href="https://www.apple.com/mac-mini/specs/">Apple Mac mini</a>
+          <a href="https://www.apple.com/mac-studio/specs/">Apple Mac Studio</a>
+          <a href="https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/">NVIDIA RTX 50 Series</a>
+          <a href="https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-6000/">RTX PRO 6000 Blackwell</a>
+          <a href="https://docs.nvidia.com/dgx/dgx-spark/hardware.html">NVIDIA DGX Spark</a>
+          <a href="https://www.nvidia.com/en-us/data-center/h100/">NVIDIA H100</a>
+          <a href="https://www.nvidia.com/en-us/data-center/h200/">NVIDIA H200</a>
+          <a href="https://www.nvidia.com/en-us/data-center/gb200-nvl72/">NVIDIA GB200</a>
+          <a href="https://www.amd.com/en/products/processors/laptop/ryzen/ai-300-series/amd-ryzen-ai-max-plus-395.html">AMD Ryzen AI Max+ 395</a>
+          <a href="https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc.html">Intel Arc</a>
+          <a href="https://www.ithome.com/">IT之家/电商价格报道</a>
+          <a href="https://detail.zol.com.cn/">ZOL/报价站</a>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="deviceDialog">
+      <button class="dialog-close" id="closeDialog" aria-label="关闭">×</button>
+      <div id="dialogContent"></div>
+    </dialog>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
