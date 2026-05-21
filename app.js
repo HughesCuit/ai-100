@@ -604,7 +604,7 @@ const max = {
 };
 
 const priceFloor = 2000;
-const priceCeil = 30000000;
+const priceCeil = 100000;
 const logFloor = Math.log10(priceFloor);
 const logCeil = Math.log10(priceCeil);
 
@@ -614,7 +614,7 @@ const state = {
   platform: "all",
   sort: "score",
   priceMin: priceFloor,
-  priceMax: priceCeil,
+  priceMax: Infinity,
   arch: "dense",
   modelMin: 0,
   activeB: 0,
@@ -654,6 +654,7 @@ function formatAi(value) {
 }
 
 function formatPrice(value) {
+  if (!Number.isFinite(value)) return "￥10万+";
   if (value >= 10000000) return `￥${Math.round(value / 10000)}万`;
   if (value >= 10000) {
     const wan = value / 10000;
@@ -688,12 +689,14 @@ function modelLabel(modelB, arch = state.arch, activeB = null) {
   return `${modelB}B Dense`;
 }
 
-function sliderToPrice(value) {
+function sliderToPrice(value, openEnded = false) {
   const ratio = Number(value) / 1000;
+  if (openEnded && ratio >= 1) return Infinity;
   return Math.round(10 ** (logFloor + ratio * (logCeil - logFloor)));
 }
 
 function priceToSlider(value) {
+  if (!Number.isFinite(value)) return 1000;
   const ratio = (Math.log10(value) - logFloor) / (logCeil - logFloor);
   return Math.round(Math.min(1000, Math.max(0, ratio * 1000)));
 }
@@ -1029,7 +1032,7 @@ function syncPriceFromSliders(changed) {
     }
   }
   state.priceMin = sliderToPrice(minValue);
-  state.priceMax = sliderToPrice(maxValue);
+  state.priceMax = sliderToPrice(maxValue, true);
   render();
 }
 
@@ -1042,7 +1045,7 @@ resetFilters.addEventListener("click", () => {
   state.platform = "all";
   state.sort = "score";
   state.priceMin = priceFloor;
-  state.priceMax = priceCeil;
+  state.priceMax = Infinity;
   state.arch = "dense";
   state.modelMin = 0;
   state.activeB = 0;
@@ -1056,7 +1059,7 @@ resetFilters.addEventListener("click", () => {
   activeFilter.value = "";
   speedFilter.value = "0";
   priceMinRange.value = priceToSlider(priceFloor);
-  priceMaxRange.value = priceToSlider(priceCeil);
+  priceMaxRange.value = priceToSlider(Infinity);
   render();
 });
 
